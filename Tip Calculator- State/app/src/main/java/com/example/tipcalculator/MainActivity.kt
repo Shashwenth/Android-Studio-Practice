@@ -1,5 +1,6 @@
 package com.example.tipcalculator
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -28,6 +29,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.tipcalculator.ui.theme.TipCalculatorTheme
+import kotlin.math.round
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,8 +61,15 @@ fun GreetingPreview() {
     }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun MainPageLayout(modifier: Modifier = Modifier){
+
+    var amt by remember { mutableStateOf("") }
+    var tipAmount = amt.toDoubleOrNull() ?: 0.0;
+    tipAmount= CalculateTip(tipAmount);
+    tipAmount=String.format("%.2f", tipAmount).toDouble()
+
     Column(
         modifier = modifier.
             fillMaxSize().padding(40.dp),
@@ -77,12 +86,12 @@ fun MainPageLayout(modifier: Modifier = Modifier){
                     ).padding(bottom = 10.dp)
             )
 
-            EnterTheValue(modifier)
+            EnterTheValue(value = amt,onValueChange= {amt=it},modifier)
 
             Spacer(modifier.height(20.dp))
 
             Text(
-                text = "The Tip is 0.00",
+                text = "The Tip is $tipAmount",
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Bold
             )
@@ -93,12 +102,13 @@ fun MainPageLayout(modifier: Modifier = Modifier){
 
 @Composable
 fun EnterTheValue(
+    value : String,
+    onValueChange: (String) -> Unit,
     modifier: Modifier=Modifier
 ){
-    var amount by remember { mutableStateOf("") }
     TextField(
-        value = amount,
-        onValueChange = { amount = it},
+        value = value,
+        onValueChange = onValueChange,
         label = {
             Text(text = "Bill Amount")
         },
@@ -107,4 +117,11 @@ fun EnterTheValue(
         modifier = modifier
     )
 
+}
+
+
+@Composable
+fun CalculateTip(amount: Double) : Double{
+    var percentage: Int = 18;
+    return (amount*percentage)/100.0;
 }
