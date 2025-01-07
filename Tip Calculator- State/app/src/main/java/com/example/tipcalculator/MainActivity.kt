@@ -7,13 +7,17 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -25,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -66,8 +71,11 @@ fun GreetingPreview() {
 fun MainPageLayout(modifier: Modifier = Modifier){
 
     var amt by remember { mutableStateOf("") }
+    var tipPercentage by remember { mutableStateOf("") }
+    var tipPercent=tipPercentage.toDoubleOrNull() ?: 0.0;
     var tipAmount = amt.toDoubleOrNull() ?: 0.0;
-    tipAmount= CalculateTip(tipAmount);
+    var roundUp by remember { mutableStateOf(false) }
+    tipAmount= CalculateTip(tipAmount, tipPercent, roundUp);
     tipAmount=String.format("%.2f", tipAmount).toDouble()
 
     Column(
@@ -86,7 +94,17 @@ fun MainPageLayout(modifier: Modifier = Modifier){
                     ).padding(bottom = 10.dp)
             )
 
-            EnterTheValue(value = amt,onValueChange= {amt=it},modifier)
+            EnterTheValue("Enter Amount",value = amt,onValueChange= {amt=it},
+                KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next), modifier)
+
+            Spacer(modifier.height(20.dp))
+
+            EnterTheValue("Tip Percentage",value = tipPercentage,onValueChange= {tipPercentage=it},
+                KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done) ,modifier)
+
+            Spacer(modifier.height(20.dp))
+
+            RoundUpSwitch("Round Up Tip", roundUp, onSwitchChange={roundUp=it}, modifier )
 
             Spacer(modifier.height(20.dp))
 
@@ -102,17 +120,19 @@ fun MainPageLayout(modifier: Modifier = Modifier){
 
 @Composable
 fun EnterTheValue(
+    labelString: String,
     value : String,
     onValueChange: (String) -> Unit,
+    keyboardOptions: KeyboardOptions,
     modifier: Modifier=Modifier
 ){
     TextField(
         value = value,
         onValueChange = onValueChange,
         label = {
-            Text(text = "Bill Amount")
+            Text(text = labelString)
         },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardOptions = keyboardOptions,
         singleLine = true,
         modifier = modifier
     )
@@ -121,7 +141,40 @@ fun EnterTheValue(
 
 
 @Composable
-fun CalculateTip(amount: Double) : Double{
-    var percentage: Int = 18;
-    return (amount*percentage)/100.0;
+fun CalculateTip(amount: Double, tipPercent: Double, RoundUp: Boolean) : Double{
+    if(RoundUp){
+        return round(((amount*tipPercent)/100.0));
+    }
+    return (amount*tipPercent)/100.0;
+}
+
+@Composable
+fun RoundUpSwitch(
+    value: String,
+    roundUp: Boolean,
+    onSwitchChange: (Boolean) -> Unit ,
+    modifier: Modifier = Modifier
+){
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp), // Add padding for better alignment
+        verticalAlignment = Alignment.CenterVertically // Align items vertically
+    ) {
+        Spacer(modifier.width(40.dp))
+
+        Text(
+            text = value,
+            modifier = Modifier
+        )
+
+        Spacer(modifier.width(110.dp))
+
+        Switch(
+            checked = roundUp,
+            onCheckedChange = onSwitchChange
+        )
+    }
+
 }
