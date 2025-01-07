@@ -27,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -37,12 +36,13 @@ import com.example.tipcalculator.ui.theme.TipCalculatorTheme
 import kotlin.math.round
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             TipCalculatorTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
                     MainPageLayout()
                 }
             }
@@ -75,7 +75,7 @@ fun MainPageLayout(modifier: Modifier = Modifier){
     var tipPercent=tipPercentage.toDoubleOrNull() ?: 0.0;
     var tipAmount = amt.toDoubleOrNull() ?: 0.0;
     var roundUp by remember { mutableStateOf(false) }
-    tipAmount= CalculateTip(tipAmount, tipPercent, roundUp);
+    tipAmount= calculateTip(tipAmount, tipPercent, roundUp);
     tipAmount=String.format("%.2f", tipAmount).toDouble()
 
     Column(
@@ -141,8 +141,8 @@ fun EnterTheValue(
 
 
 @Composable
-fun CalculateTip(amount: Double, tipPercent: Double, RoundUp: Boolean) : Double{
-    if(RoundUp){
+fun calculateTip(amount: Double, tipPercent: Double, roundUp: Boolean) : Double{
+    if(roundUp){
         return round(((amount*tipPercent)/100.0));
     }
     return (amount*tipPercent)/100.0;
