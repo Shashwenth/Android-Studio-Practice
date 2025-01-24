@@ -260,9 +260,12 @@ data class ColorFamily(
     val onColorContainer: Color
 )
 
+
+
 val unspecified_scheme = ColorFamily(
     Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
 )
+
 
 
 
@@ -270,7 +273,7 @@ val unspecified_scheme = ColorFamily(
 fun WoofTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -278,6 +281,10 @@ fun WoofTheme(
 //            val context = LocalContext.current
 //            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
 //        }
+        dynamicColor -> {
+            val context = LocalContext.current
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
 
         darkTheme -> darkScheme
         else -> lightScheme
